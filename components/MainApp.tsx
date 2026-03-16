@@ -68,7 +68,7 @@ export default function MainApp() {
           <div className="w-8 h-8 bg-amber-500 rounded flex items-center justify-center text-black font-bold font-mono">CB</div>
           <div>
             <h1 className="text-lg font-bold tracking-tight leading-none">CircuitBase</h1>
-            <p className="text-[10px] uppercase tracking-widest text-zinc-500 mt-1 font-semibold">Component OS v2.0</p>
+            <p className="text-[10px] uppercase tracking-widest text-zinc-500 mt-1 font-semibold">Component Database</p>
           </div>
         </div>
 
