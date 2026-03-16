@@ -215,7 +215,24 @@ export const GOAL_PRIORITY_IDS: Record<string, string[]> = {
 export const PROJECT_TEMPLATES: Record<string, string[]> = {
   'weather station': ['esp32-wroom','dht22','bmp280','oled-ssd1306','bb830','dupont-kit'],
   'line follower': ['arduino-uno','l298n-mini','gear-motor','gear-motor','hcsr04','18650','bb830','dupont-kit'],
-  'smart home hub': ['esp32-wroom','relay','dht22','nrf24l01','bb830','dupont-kit']
+  'smart home hub': ['esp32-wroom','relay','dht22','nrf24l01','bb830','dupont-kit'],
+  'gps tracker': ['esp32-wroom','neo6m','oled-ssd1306','sim800l','bb830','dupont-kit'],
+  'air quality monitor': ['esp32-wroom','bme680','ccs811','oled-ssd1306','bb830','dupont-kit'],
+  'gesture controller': ['esp32-wroom','apds9960','relay','bb830','dupont-kit'],
+  'smart scale': ['esp32-wroom','hx711','load-cell','oled-ssd1306','bb830','dupont-kit'],
+  'radar motion detector': ['esp32-wroom','rcwl0516','relay','buzzer','bb830','dupont-kit'],
+  'stepper motor controller': ['arduino-uno','28byj48','rotenc','bb830','dupont-kit'],
+  'color sorter': ['esp32-wroom','tcs34725','servo-sg90','bb830','dupont-kit'],
+  'ir thermometer': ['esp32-wroom','mlx90614','oled-ssd1306','bb830','dupont-kit'],
+  'gsm alarm system': ['esp32-wroom','sim800l','pir-sr501','buzzer','bb830','dupont-kit'],
+  'lora messenger': ['esp32-wroom','lora-sx1278','oled-ssd1306','rotenc','bb830','dupont-kit'],
+  'tof distance meter': ['esp32-wroom','vl53l0x','oled-ssd1306','bb830','dupont-kit'],
+  'servo camera pan-tilt': ['esp32-wroom','ov2640','servo-sg90','servo-sg90','bb830','dupont-kit'],
+  'flex sensor glove': ['esp32-wroom','flex-sensor','flex-sensor','oled-ssd1306','bb830','dupont-kit'],
+  'vibration alarm': ['esp32-wroom','sw420','relay','buzzer','bb830','dupont-kit'],
+  'hall effect counter': ['esp32-wroom','ky003','oled-ssd1306','bb830','dupont-kit'],
+  'magnetic encoder position': ['esp32-wroom','as5600','n20-motor','l298n-mini','bb830','dupont-kit'],
+  'capacitive soil monitor': ['esp32-wroom','soil-cap','oled-ssd1306','relay','bb830','dupont-kit']
 };
 
 export const STARTER_KITS = [
@@ -257,6 +274,103 @@ export const STARTER_KITS = [
     items: [
       { id: 'esp8266-nodemcu', qty: 1 },
       { id: 'tm1637', qty: 1 },
+      { id: 'bb830', qty: 1 },
+      { id: 'dupont-kit', qty: 1 }
+    ]
+  },
+  {
+    id: 'kit-gps-tracker',
+    name: 'GPS Tracker Kit',
+    desc: 'Build a location tracker with GPS and GSM connectivity.',
+    tags: ['gps', 'gsm', 'tracking', 'iot'],
+    items: [
+      { id: 'esp32-wroom', qty: 1 },
+      { id: 'neo6m', qty: 1 },
+      { id: 'sim800l', qty: 1 },
+      { id: 'oled-ssd1306', qty: 1 },
+      { id: 'bb830', qty: 1 },
+      { id: 'dupont-kit', qty: 1 },
+      { id: 'res-kit', qty: 1 }
+    ]
+  },
+  {
+    id: 'kit-air-quality',
+    name: 'Air Quality Monitor Kit',
+    desc: 'Monitor indoor air quality with VOC, CO2, and environmental sensors.',
+    tags: ['air-quality', 'environmental', 'sensors'],
+    items: [
+      { id: 'esp32-wroom', qty: 1 },
+      { id: 'bme680', qty: 1 },
+      { id: 'ccs811', qty: 1 },
+      { id: 'oled-ssd1306', qty: 1 },
+      { id: 'bb830', qty: 1 },
+      { id: 'dupont-kit', qty: 1 }
+    ]
+  },
+  {
+    id: 'kit-smart-scale',
+    name: 'Smart Scale Kit',
+    desc: 'Build a digital weighing scale with load cell and HX711 amplifier.',
+    tags: ['scale', 'load-cell', 'measurement'],
+    items: [
+      { id: 'esp32-wroom', qty: 1 },
+      { id: 'hx711', qty: 1 },
+      { id: 'oled-ssd1306', qty: 1 },
+      { id: 'bb830', qty: 1 },
+      { id: 'dupont-kit', qty: 1 }
+    ]
+  },
+  {
+    id: 'kit-gesture-control',
+    name: 'Gesture Controller Kit',
+    desc: 'Control devices with hand gestures using APDS-9960 sensor.',
+    tags: ['gesture', 'motion', 'control'],
+    items: [
+      { id: 'esp32-wroom', qty: 1 },
+      { id: 'apds9960', qty: 1 },
+      { id: 'relay', qty: 2 },
+      { id: 'oled-ssd1306', qty: 1 },
+      { id: 'bb830', qty: 1 },
+      { id: 'dupont-kit', qty: 1 }
+    ]
+  },
+  {
+    id: 'kit-lora-comm',
+    name: 'LoRa Communication Kit',
+    desc: 'Long-range wireless communication with LoRa modules.',
+    tags: ['lora', 'wireless', 'communication'],
+    items: [
+      { id: 'esp32-wroom', qty: 2 },
+      { id: 'lora-sx1278', qty: 2 },
+      { id: 'oled-ssd1306', qty: 2 },
+      { id: 'rotenc', qty: 2 },
+      { id: 'bb830', qty: 2 },
+      { id: 'dupont-kit', qty: 1 }
+    ]
+  },
+  {
+    id: 'kit-stepper-motion',
+    name: 'Stepper Motion Control Kit',
+    desc: 'Precise position control with stepper motors and encoder.',
+    tags: ['stepper', 'motion', 'control'],
+    items: [
+      { id: 'arduino-uno', qty: 1 },
+      { id: '28byj48', qty: 1 },
+      { id: 'rotenc', qty: 1 },
+      { id: 'as5600', qty: 1 },
+      { id: 'bb830', qty: 1 },
+      { id: 'dupont-kit', qty: 1 }
+    ]
+  },
+  {
+    id: 'kit-color-sorter',
+    name: 'Color Sorting Robot Kit',
+    desc: 'Sort objects by color using TCS34725 sensor and servo.',
+    tags: ['color', 'sensor', 'servo'],
+    items: [
+      { id: 'esp32-wroom', qty: 1 },
+      { id: 'tcs34725', qty: 1 },
+      { id: 'servo-sg90', qty: 2 },
       { id: 'bb830', qty: 1 },
       { id: 'dupont-kit', qty: 1 }
     ]
