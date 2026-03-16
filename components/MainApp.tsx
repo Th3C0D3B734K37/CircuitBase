@@ -6,6 +6,7 @@ import DatabaseTab from './DatabaseTab';
 import InventoryTab from './InventoryTab';
 import BomTab from './BomTab';
 import KitTab from './KitTab';
+import Footer from './Footer';
 import { Search, Database, Package, FileText, Zap, Moon, Sun, Terminal } from 'lucide-react';
 import CommandPalette from './CommandPalette';
 import ComponentDetailModal from './ComponentDetailModal';
@@ -113,6 +114,9 @@ export default function MainApp() {
 
       {/* Component Detail Modal */}
       <ComponentDetailModal />
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }
