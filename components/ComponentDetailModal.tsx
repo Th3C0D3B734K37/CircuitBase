@@ -6,7 +6,7 @@ import { COMPONENTS } from '@/lib/data';
 import { X, ExternalLink, Plus, Package, FolderPlus } from 'lucide-react';
 
 export default function ComponentDetailModal() {
-  const { selectedComponentId, setSelectedComponentId, dbExtra, inventory, setInventory, projects, setProjects, showToast } = useAppContext();
+  const { selectedComponentId, setSelectedComponentId, dbExtra, inventory, setInventory, projects, setProjects, showToast, theme } = useAppContext();
   const [showProjectSelect, setShowProjectSelect] = useState(false);
 
   // ESC key handler to close modal
@@ -82,12 +82,12 @@ export default function ComponentDetailModal() {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-      <div className="bg-zinc-900 border border-zinc-800 w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-        <div className="flex items-center justify-between p-4 border-b border-zinc-800 bg-zinc-950">
-          <h2 className="text-lg font-bold font-sans tracking-tight truncate pr-4">{component.name}</h2>
+      <div className={`border w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] ${theme === 'dark' ? 'bg-zinc-900 border-zinc-800' : 'bg-white border-zinc-200'}`}>
+        <div className={`flex items-center justify-between p-4 border-b ${theme === 'dark' ? 'border-zinc-800 bg-zinc-950' : 'border-zinc-200 bg-zinc-100'}`}>
+          <h2 className={`text-lg font-bold font-sans tracking-tight truncate pr-4 ${theme === 'dark' ? '' : 'text-zinc-900'}`}>{component.name}</h2>
           <button 
             onClick={() => setSelectedComponentId(null)}
-            className="p-1 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded transition-colors"
+            className={`p-1 rounded transition-colors ${theme === 'dark' ? 'text-zinc-400 hover:text-white hover:bg-zinc-800' : 'text-zinc-500 hover:text-zinc-900 hover:bg-zinc-200'}`}
           >
             <X size={20} />
           </button>
@@ -95,7 +95,7 @@ export default function ComponentDetailModal() {
         
         <div className="p-6 overflow-y-auto flex-1">
           <div className="flex flex-wrap items-center gap-3 mb-6">
-            <span className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider bg-zinc-800 text-zinc-300">
+            <span className={`px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${theme === 'dark' ? 'bg-zinc-800 text-zinc-300' : 'bg-zinc-200 text-zinc-700'}`}>
               {component.cat}
             </span>
             {component.price ? (
@@ -109,16 +109,16 @@ export default function ComponentDetailModal() {
           </div>
 
           <div className="mb-8">
-            <h3 className="text-xs font-bold font-sans uppercase tracking-wider text-zinc-500 mb-2">Description & Notes</h3>
-            <p className="text-sm text-zinc-300 leading-relaxed">{component.note}</p>
+            <h3 className={`text-xs font-bold font-sans uppercase tracking-wider mb-2 ${theme === 'dark' ? 'text-zinc-500' : 'text-zinc-600'}`}>Description & Notes</h3>
+            <p className={`text-sm leading-relaxed ${theme === 'dark' ? 'text-zinc-300' : 'text-zinc-700'}`}>{component.note}</p>
           </div>
 
           {component.tags && component.tags.length > 0 && (
             <div className="mb-8">
-              <h3 className="text-xs font-bold font-sans uppercase tracking-wider text-zinc-500 mb-2">Tags</h3>
+              <h3 className={`text-xs font-bold font-sans uppercase tracking-wider mb-2 ${theme === 'dark' ? 'text-zinc-500' : 'text-zinc-600'}`}>Tags</h3>
               <div className="flex flex-wrap gap-1.5">
                 {component.tags.map(tag => (
-                  <span key={tag} className="text-[10px] uppercase tracking-wider px-2 py-1 bg-zinc-950 border border-zinc-800 text-zinc-400">
+                  <span key={tag} className={`text-[10px] uppercase tracking-wider px-2 py-1 border ${theme === 'dark' ? 'bg-zinc-950 border-zinc-800 text-zinc-400' : 'bg-zinc-100 border-zinc-200 text-zinc-600'}`}>
                     {tag}
                   </span>
                 ))}
@@ -128,7 +128,7 @@ export default function ComponentDetailModal() {
 
           {component.pairs && component.pairs.length > 0 && (
             <div className="mb-8">
-              <h3 className="text-xs font-bold font-sans uppercase tracking-wider text-zinc-500 mb-2">Pairs Well With</h3>
+              <h3 className={`text-xs font-bold font-sans uppercase tracking-wider mb-2 ${theme === 'dark' ? 'text-zinc-500' : 'text-zinc-600'}`}>Pairs Well With</h3>
               <div className="flex flex-wrap gap-2">
                 {component.pairs.map(pairId => {
                   const pairComp = COMPONENTS.find(c => c.id === pairId) || dbExtra.find(c => c.id === pairId);
@@ -137,7 +137,7 @@ export default function ComponentDetailModal() {
                     <button 
                       key={pairId}
                       onClick={() => setSelectedComponentId(pairId)}
-                      className="text-xs px-3 py-1.5 bg-zinc-950 border border-zinc-800 hover:border-amber-500 hover:text-amber-500 transition-colors text-left"
+                      className={`text-xs px-3 py-1.5 border hover:border-amber-500 hover:text-amber-500 transition-colors text-left ${theme === 'dark' ? 'bg-zinc-950 border-zinc-800' : 'bg-zinc-100 border-zinc-200 text-zinc-700'}`}
                     >
                       {pairComp.name}
                     </button>
@@ -153,7 +153,7 @@ export default function ComponentDetailModal() {
                 href={component.datasheet} 
                 target="_blank" 
                 rel="noreferrer"
-                className="flex items-center justify-center gap-2 py-2.5 px-4 bg-zinc-950 border border-zinc-800 hover:bg-zinc-800 transition-colors text-xs font-semibold uppercase tracking-wider text-zinc-300"
+                className={`flex items-center justify-center gap-2 py-2.5 px-4 border transition-colors text-xs font-semibold uppercase tracking-wider ${theme === 'dark' ? 'bg-zinc-950 border-zinc-800 hover:bg-zinc-800 text-zinc-300' : 'bg-zinc-100 border-zinc-200 hover:bg-zinc-200 text-zinc-700'}`}
               >
                 <ExternalLink size={14} /> Datasheet
               </a>
@@ -162,23 +162,23 @@ export default function ComponentDetailModal() {
             {component.wtb && (
               <div className="flex gap-2">
                 {component.wtb.robu && (
-                  <a href={component.wtb.robu} target="_blank" rel="noreferrer" className="flex-1 flex items-center justify-center py-2.5 bg-zinc-950 border border-zinc-800 hover:bg-zinc-800 transition-colors text-[10px] font-semibold uppercase tracking-wider text-zinc-300">Robu</a>
+                  <a href={component.wtb.robu} target="_blank" rel="noreferrer" className={`flex-1 flex items-center justify-center py-2.5 border transition-colors text-[10px] font-semibold uppercase tracking-wider ${theme === 'dark' ? 'bg-zinc-950 border-zinc-800 hover:bg-zinc-800 text-zinc-300' : 'bg-zinc-100 border-zinc-200 hover:bg-zinc-200 text-zinc-700'}`}>Robu</a>
                 )}
                 {component.wtb.amazon && (
-                  <a href={component.wtb.amazon} target="_blank" rel="noreferrer" className="flex-1 flex items-center justify-center py-2.5 bg-zinc-950 border border-zinc-800 hover:bg-zinc-800 transition-colors text-[10px] font-semibold uppercase tracking-wider text-zinc-300">Amazon</a>
+                  <a href={component.wtb.amazon} target="_blank" rel="noreferrer" className={`flex-1 flex items-center justify-center py-2.5 border transition-colors text-[10px] font-semibold uppercase tracking-wider ${theme === 'dark' ? 'bg-zinc-950 border-zinc-800 hover:bg-zinc-800 text-zinc-300' : 'bg-zinc-100 border-zinc-200 hover:bg-zinc-200 text-zinc-700'}`}>Amazon</a>
                 )}
                 {component.wtb.ali && (
-                  <a href={component.wtb.ali} target="_blank" rel="noreferrer" className="flex-1 flex items-center justify-center py-2.5 bg-zinc-950 border border-zinc-800 hover:bg-zinc-800 transition-colors text-[10px] font-semibold uppercase tracking-wider text-zinc-300">AliExpress</a>
+                  <a href={component.wtb.ali} target="_blank" rel="noreferrer" className={`flex-1 flex items-center justify-center py-2.5 border transition-colors text-[10px] font-semibold uppercase tracking-wider ${theme === 'dark' ? 'bg-zinc-950 border-zinc-800 hover:bg-zinc-800 text-zinc-300' : 'bg-zinc-100 border-zinc-200 hover:bg-zinc-200 text-zinc-700'}`}>AliExpress</a>
                 )}
               </div>
             )}
           </div>
         </div>
 
-        <div className="p-4 border-t border-zinc-800 bg-zinc-950 flex flex-col sm:flex-row gap-3">
+        <div className={`p-4 border-t flex flex-col sm:flex-row gap-3 ${theme === 'dark' ? 'border-zinc-800 bg-zinc-950' : 'border-zinc-200 bg-zinc-50'}`}>
           <button 
             onClick={addToInventory}
-            className="flex-1 py-2.5 text-xs font-semibold uppercase tracking-wider bg-zinc-800 text-white hover:bg-zinc-700 transition-colors flex items-center justify-center gap-2"
+            className={`flex-1 py-2.5 text-xs font-semibold uppercase tracking-wider transition-colors flex items-center justify-center gap-2 ${theme === 'dark' ? 'bg-zinc-800 text-white hover:bg-zinc-700' : 'bg-zinc-200 text-zinc-800 hover:bg-zinc-300'}`}
           >
             <Package size={14} /> Add to Inventory
           </button>
@@ -192,16 +192,16 @@ export default function ComponentDetailModal() {
             </button>
             
             {showProjectSelect && (
-              <div className="absolute bottom-full left-0 w-full mb-2 bg-zinc-900 border border-zinc-800 shadow-xl overflow-hidden animate-in slide-in-from-bottom-2">
+              <div className={`absolute bottom-full left-0 w-full mb-2 border shadow-xl overflow-hidden animate-in slide-in-from-bottom-2 ${theme === 'dark' ? 'bg-zinc-900 border-zinc-800' : 'bg-white border-zinc-200'}`}>
                 {projects.length === 0 ? (
-                  <div className="p-3 text-xs text-zinc-500 text-center">No projects found. Create one in the BOM tab first.</div>
+                  <div className={`p-3 text-xs text-center ${theme === 'dark' ? 'text-zinc-500' : 'text-zinc-500'}`}>No projects found. Create one in the BOM tab first.</div>
                 ) : (
                   <div className="max-h-48 overflow-y-auto">
                     {projects.map(p => (
                       <button 
                         key={p.id}
                         onClick={() => addToProject(p.id)}
-                        className="w-full text-left px-4 py-2.5 text-xs hover:bg-zinc-800 transition-colors border-b border-zinc-800/50 last:border-0 truncate"
+                        className={`w-full text-left px-4 py-2.5 text-xs transition-colors border-b last:border-0 truncate ${theme === 'dark' ? 'hover:bg-zinc-800 border-zinc-800/50' : 'hover:bg-zinc-100 border-zinc-200 text-zinc-700'}`}
                       >
                         {p.name}
                       </button>
