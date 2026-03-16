@@ -8,7 +8,7 @@ import { Search, Plus, Check } from 'lucide-react';
 export default function KitTab() {
   const { inventory, setInventory, showToast, setSelectedComponentId } = useAppContext();
   const [budget, setBudget] = useState(2000);
-  const [focus, setFocus] = useState('general');
+  const [focus, setFocus] = useState<'general' | 'iot' | 'robotics' | 'display' | 'wireless' | 'power' | 'audio' | 'basic'>('general');
   const [mode, setMode] = useState<'budget' | 'project'>('budget');
   const [projQuery, setProjQuery] = useState('');
 
@@ -36,17 +36,72 @@ export default function KitTab() {
       }).filter(Boolean) as any[];
     }
 
-    // Budget mode
+    // Budget mode - Enhanced with better suggestions
     let pool = COMPONENTS.filter(c => c.price && c.price > 0);
     
-    if (focus === 'iot') pool = pool.filter(c => c.tags && (c.tags.includes('wifi') || c.tags.includes('mcu') || c.tags.includes('sensor')));
-    else if (focus === 'robotics') pool = pool.filter(c => c.tags && (c.tags.includes('motor') || c.tags.includes('driver') || c.tags.includes('power')));
-    else if (focus === 'audio') pool = pool.filter(c => c.tags && (c.tags.includes('audio') || c.tags.includes('amp')));
+    // Enhanced filtering based on focus with more comprehensive matching
+    if (focus === 'iot') {
+      pool = pool.filter(c => c.tags && (
+        c.tags.includes('wifi') || c.tags.includes('mcu') || 
+        c.tags.includes('sensor') || c.tags.includes('display') ||
+        c.tags.includes('iot') || c.cat === 'mcu' || c.cat === 'sensor'
+      ));
+    }
+    else if (focus === 'robotics') {
+      pool = pool.filter(c => c.tags && (
+        c.tags.includes('motor') || c.tags.includes('driver') || 
+        c.tags.includes('power') || c.tags.includes('servo') ||
+        c.cat === 'mechanical' || c.tags.includes('robotics')
+      ));
+    }
+    else if (focus === 'display') {
+      pool = pool.filter(c => c.tags && (
+        c.tags.includes('display') || c.tags.includes('oled') || 
+        c.tags.includes('tft') || c.tags.includes('lcd') ||
+        c.cat === 'display' || c.tags.includes('screen')
+      ));
+    }
+    else if (focus === 'wireless') {
+      pool = pool.filter(c => c.tags && (
+        c.tags.includes('wifi') || c.tags.includes('bluetooth') || 
+        c.tags.includes('rf') || c.tags.includes('lora') ||
+        c.cat === 'rf' || c.tags.includes('wireless')
+      ));
+    }
+    else if (focus === 'power') {
+      pool = pool.filter(c => c.tags && (
+        c.tags.includes('power') || c.tags.includes('battery') || 
+        c.tags.includes('charger') || c.tags.includes('regulator') ||
+        c.cat === 'power' || c.tags.includes('voltage')
+      ));
+    }
 
-    // Basic heuristic: essential MCUs first, then sensors, then basic IO
+    // Enhanced scoring algorithm for better recommendations
     const sorted = pool.sort((a, b) => {
-      const scoreA = (a.cat === 'mcu' ? 100 : a.cat === 'sensor' ? 50 : 10) - (a.price || 0) / 100;
-      const scoreB = (b.cat === 'mcu' ? 100 : b.cat === 'sensor' ? 50 : 10) - (b.price || 0) / 100;
+      // Base score by category importance
+      let scoreA = 0, scoreB = 0;
+      
+      // Essential components get higher scores
+      if (a.tier === 1) scoreA += 50;
+      if (b.tier === 1) scoreB += 50;
+      
+      // Category-specific scoring
+      if (a.cat === 'mcu') scoreA += 30;
+      if (b.cat === 'mcu') scoreB += 30;
+      if (a.cat === 'sensor') scoreA += 20;
+      if (b.cat === 'sensor') scoreB += 20;
+      if (a.cat === 'power') scoreA += 15;
+      if (b.cat === 'power') scoreB += 15;
+      
+      // Price consideration (lower price gets slight advantage)
+      scoreA += Math.max(0, 100 - (a.price || 0) / 20);
+      scoreB += Math.max(0, 100 - (b.price || 0) / 20);
+      
+      // Tag matching with focus
+      if (focus === 'iot' && a.tags && a.tags.some(t => ['wifi', 'mcu', 'sensor'].includes(t))) scoreA += 25;
+      if (focus === 'robotics' && a.tags && a.tags.some(t => ['motor', 'driver', 'servo'].includes(t))) scoreA += 25;
+      if (focus === 'display' && a.tags && a.tags.some(t => ['display', 'oled', 'tft'].includes(t))) scoreA += 25;
+      
       return scoreB - scoreA;
     });
 
@@ -167,7 +222,11 @@ export default function KitTab() {
                     <option value="general">General Electronics</option>
                     <option value="iot">IoT & Smart Home</option>
                     <option value="robotics">Robotics & Motors</option>
+                    <option value="display">Displays & Screens</option>
+                    <option value="wireless">Wireless & RF</option>
+                    <option value="power">Power & Batteries</option>
                     <option value="audio">Audio & Synth</option>
+                    <option value="basic">Basic Components</option>
                   </select>
                 </div>
               </div>

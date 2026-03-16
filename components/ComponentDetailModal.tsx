@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useAppContext } from './AppContext';
 import { COMPONENTS } from '@/lib/data';
 import { X, ExternalLink, Plus, Package, FolderPlus } from 'lucide-react';
@@ -8,6 +8,18 @@ import { X, ExternalLink, Plus, Package, FolderPlus } from 'lucide-react';
 export default function ComponentDetailModal() {
   const { selectedComponentId, setSelectedComponentId, dbExtra, inventory, setInventory, projects, setProjects, showToast } = useAppContext();
   const [showProjectSelect, setShowProjectSelect] = useState(false);
+
+  // ESC key handler to close modal
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setSelectedComponentId(null);
+      }
+    };
+
+    document.addEventListener('keydown', handleEsc);
+    return () => document.removeEventListener('keydown', handleEsc);
+  }, [setSelectedComponentId]);
 
   const component = useMemo(() => {
     if (!selectedComponentId) return null;

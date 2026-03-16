@@ -11,6 +11,18 @@ export default function CommandPalette({ onClose, onNavigate }: { onClose: () =>
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // ESC key handler to close command palette
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    document.addEventListener('keydown', handleEsc);
+    return () => document.removeEventListener('keydown', handleEsc);
+  }, [onClose]);
+
   const results = useMemo(() => {
     const q = query.toLowerCase();
     if (!q) {
