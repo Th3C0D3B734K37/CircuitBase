@@ -10,7 +10,8 @@ export const CATEGORIES = [
   { id: 'passive', label: 'Passive' },
   { id: 'proto', label: 'Proto' },
   { id: 'mechanical', label: 'Mechanical' },
-  { id: 'material', label: 'Material' }
+  { id: 'material', label: 'Material' },
+  { id: 'tools', label: 'Tools' }
 ] as const;
 
 export const TIERS = [
