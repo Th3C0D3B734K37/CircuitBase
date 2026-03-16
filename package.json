@@ -1,0 +1,66 @@
+{
+  "name": "circuitbase",
+  "version": "1.0.0",
+  "description": "A comprehensive electronics component database and management system",
+  "private": false,
+  "homepage": "https://github.com/Th3C0D3B734K37/CircuitBase#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Th3C0D3B734K37/CircuitBase.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Th3C0D3B734K37/CircuitBase/issues"
+  },
+  "keywords": [
+    "electronics",
+    "components",
+    "database",
+    "inventory",
+    "bom",
+    "iot",
+    "arduino",
+    "esp32",
+    "raspberry-pi",
+    "sensors",
+    "microcontrollers"
+  ],
+  "author": {
+    "name": "CircuitBase Team",
+    "email": "contact@circuitbase.dev"
+  },
+  "license": "MIT",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint . --ext .ts,.tsx",
+    "lint:fix": "eslint . --ext .ts,.tsx --fix",
+    "type-check": "tsc --noEmit",
+    "clean": "next clean",
+    "preview": "next build && next start"
+  },
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.553.0",
+    "next": "^15.4.9",
+    "react": "^19.2.1",
+    "react-dom": "^19.2.1",
+    "tailwind-merge": "^3.3.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/typography": "^0.5.19",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "autoprefixer": "^10.4.21",
+    "eslint": "9.39.1",
+    "eslint-config-next": "16.0.8",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.0",
+    "typescript": "5.9.3"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  }
+}
