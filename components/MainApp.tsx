@@ -7,7 +7,7 @@ import InventoryTab from './InventoryTab';
 import BomTab from './BomTab';
 import KitTab from './KitTab';
 import Footer from './Footer';
-import { Search, Database, Package, FileText, Zap, Moon, Sun, Terminal } from 'lucide-react';
+import { Search, Database, Package, FileText, Zap, Moon, Sun, Terminal, ArrowUp } from 'lucide-react';
 import CommandPalette from './CommandPalette';
 import ComponentDetailModal from './ComponentDetailModal';
 
@@ -15,6 +15,7 @@ export default function MainApp() {
   const { theme, toggleTheme, showToast, projects } = useAppContext();
   const [activeTab, setActiveTab] = useState('db');
   const [cmdOpen, setCmdOpen] = useState(false);
+  const [showScrollTop, setShowScrollTop] = useState(false);
 
   // Load last active tab from localStorage
   useEffect(() => {
@@ -29,6 +30,20 @@ export default function MainApp() {
   useEffect(() => {
     localStorage.setItem('cb_active_tab', activeTab);
   }, [activeTab]);
+
+  // Scroll to top visibility
+  useEffect(() => {
+    const handleScroll = () => {
+      // Show button after scrolling 300px
+      setShowScrollTop(window.scrollY > 300);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -114,6 +129,17 @@ export default function MainApp() {
 
       {/* Component Detail Modal */}
       <ComponentDetailModal />
+
+      {/* Scroll to Top Button */}
+      {showScrollTop && (
+        <button
+          onClick={scrollToTop}
+          className={`fixed right-4 bottom-20 z-40 p-3 rounded-full shadow-lg transition-all hover:scale-110 ${theme === 'dark' ? 'bg-zinc-800 border border-zinc-700 text-zinc-300 hover:bg-zinc-700' : 'bg-white border border-zinc-300 text-zinc-700 hover:bg-zinc-100'}`}
+          aria-label="Scroll to top"
+        >
+          <ArrowUp size={20} />
+        </button>
+      )}
 
       {/* Footer */}
       <Footer />

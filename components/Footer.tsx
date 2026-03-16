@@ -11,13 +11,7 @@ export default function Footer() {
     <footer className={`border-t ${theme === 'dark' ? 'border-zinc-800' : 'border-zinc-200'} py-6`}>
       <div className="max-w-5xl mx-auto px-4 flex flex-row items-center justify-between gap-4">
         <div className={`flex items-center gap-3 ${theme === 'dark' ? 'text-zinc-400' : 'text-zinc-500'}`}>
-          {/* <a
-           href="mailto:contact@circuitbase.dev"
-             className="hover:text-amber-500 transition-colors"
-            aria-label="Email"
-          >
-            <Mail className="h-4 w-4" />
-          </a> */}
+         
           <a
             href="https://linkedin.com/in/gayathra-bhatt"
             target="_blank"

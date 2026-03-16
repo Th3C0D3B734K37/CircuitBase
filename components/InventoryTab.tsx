@@ -13,7 +13,7 @@ const CATS = [
 ];
 
 export default function InventoryTab() {
-  const { inventory, setInventory, projects, showToast, setSelectedComponentId } = useAppContext();
+  const { inventory, setInventory, projects, showToast, setSelectedComponentId, theme } = useAppContext();
   const [search, setSearch] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
   const [showBulkModal, setShowBulkModal] = useState(false);
@@ -71,33 +71,33 @@ export default function InventoryTab() {
 
   return (
     <div className="animate-in fade-in duration-300">
-      <div className="flex flex-col md:flex-row md:items-baseline gap-3 mb-5 pb-3 border-b border-zinc-800">
-        <h2 className="text-xl font-bold font-sans tracking-tight">My Inventory</h2>
+      <div className={`flex flex-col md:flex-row md:items-baseline gap-3 mb-5 pb-3 border-b ${theme === 'dark' ? 'border-zinc-800' : 'border-zinc-200'}`}>
+        <h2 className={`text-xl font-bold font-sans tracking-tight ${theme === 'dark' ? '' : 'text-zinc-900'}`}>My Inventory</h2>
         <div className="md:ml-auto flex flex-wrap gap-2">
           <button onClick={() => setShowClearConfirm(true)} className="flex-1 md:flex-none justify-center px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider border border-red-900 text-red-500 hover:border-red-500 hover:text-red-400 transition-colors flex items-center gap-1"><Trash2 size={12} /> Clear All</button>
-          <button onClick={() => setShowBulkModal(true)} className="flex-1 md:flex-none justify-center px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider border border-zinc-700 hover:border-amber-500 hover:text-amber-500 transition-colors flex items-center gap-1"><Upload size={12} /> Bulk Import</button>
-          <button onClick={exportCSV} className="flex-1 md:flex-none justify-center px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider border border-zinc-700 hover:border-amber-500 hover:text-amber-500 transition-colors flex items-center gap-1"><Download size={12} /> Export</button>
+          <button onClick={() => setShowBulkModal(true)} className={`flex-1 md:flex-none justify-center px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider border hover:border-amber-500 hover:text-amber-500 transition-colors flex items-center gap-1 ${theme === 'dark' ? 'border-zinc-700' : 'border-zinc-300'}`}><Upload size={12} /> Bulk Import</button>
+          <button onClick={exportCSV} className={`flex-1 md:flex-none justify-center px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider border hover:border-amber-500 hover:text-amber-500 transition-colors flex items-center gap-1 ${theme === 'dark' ? 'border-zinc-700' : 'border-zinc-300'}`}><Download size={12} /> Export</button>
           <button onClick={() => setShowAddModal(true)} className="flex-1 md:flex-none justify-center px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider bg-amber-500 text-black hover:bg-amber-400 transition-colors flex items-center gap-1"><Plus size={12} /> Add Component</button>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-6">
-        <div className="md:col-span-2 bg-zinc-900 border border-zinc-800 p-4 flex items-center gap-6">
-          <DonutChart cats={stats.cats} total={stats.totalQty} />
+        <div className={`md:col-span-2 border p-4 flex items-center gap-6 ${theme === 'dark' ? 'bg-zinc-900 border-zinc-800' : 'bg-white border-zinc-200'}`}>
+          <DonutChart cats={stats.cats} total={stats.totalQty} theme={theme} />
         </div>
-        <div className="bg-zinc-900 border border-zinc-800 p-4 flex flex-col justify-center">
+        <div className={`border p-4 flex flex-col justify-center ${theme === 'dark' ? 'bg-zinc-900 border-zinc-800' : 'bg-white border-zinc-200'}`}>
           <div className="text-3xl font-bold font-sans text-amber-500 tracking-tight leading-none">{stats.totalQty}</div>
-          <div className="text-[10px] text-zinc-500 uppercase tracking-widest mt-1.5">Total Qty</div>
+          <div className={`text-[10px] uppercase tracking-widest mt-1.5 ${theme === 'dark' ? 'text-zinc-500' : 'text-zinc-400'}`}>Total Qty</div>
         </div>
-        <div className="bg-zinc-900 border border-zinc-800 p-4 flex flex-col justify-center">
+        <div className={`border p-4 flex flex-col justify-center ${theme === 'dark' ? 'bg-zinc-900 border-zinc-800' : 'bg-white border-zinc-200'}`}>
           <div className="text-3xl font-bold font-sans text-amber-500 tracking-tight leading-none">₹{stats.totalVal.toLocaleString('en-IN')}</div>
-          <div className="text-[10px] text-zinc-500 uppercase tracking-widest mt-1.5">Est. Value</div>
+          <div className={`text-[10px] uppercase tracking-widest mt-1.5 ${theme === 'dark' ? 'text-zinc-500' : 'text-zinc-400'}`}>Est. Value</div>
         </div>
       </div>
 
       <div className="relative mb-4 max-w-md">
-        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-zinc-500" size={14} />
-        <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search inventory..." className="w-full bg-zinc-900 border border-zinc-700 text-xs py-2 pl-8 pr-3 focus:border-amber-500 outline-none transition-colors" />
+        <Search className={`absolute left-2.5 top-1/2 -translate-y-1/2 ${theme === 'dark' ? 'text-zinc-500' : 'text-zinc-400'}`} size={14} />
+        <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search inventory..." className={`w-full border text-xs py-2 pl-8 pr-3 focus:border-amber-500 outline-none transition-colors ${theme === 'dark' ? 'bg-zinc-900 border-zinc-700' : 'bg-white border-zinc-300'}`} />
       </div>
 
       {filteredInv.length === 0 ? (
@@ -171,7 +171,7 @@ export default function InventoryTab() {
   );
 }
 
-function DonutChart({ cats, total }: { cats: Record<string, number>, total: number }) {
+function DonutChart({ cats, total, theme }: { cats: Record<string, number>, total: number, theme: 'dark' | 'light' }) {
   if (total === 0) return null;
   const colors: Record<string, string> = { mcu: '#4ade80', sensor: '#60a5fa', display: '#c084fc', power: '#fb923c', rf: '#34d399', io: '#a78bfa', active: '#f87171', passive: '#94a3b8', proto: '#fbbf24', mechanical: '#7dd3fc', material: '#d4a574', tool: '#9ca3af' };
   
@@ -199,16 +199,16 @@ function DonutChart({ cats, total }: { cats: Record<string, number>, total: numb
   return (
     <>
       <div className="w-24 h-24 rounded-full flex items-center justify-center relative" style={{ background: gradient }}>
-        <div className="w-16 h-16 bg-zinc-900 rounded-full absolute flex flex-col items-center justify-center">
-          <span className="font-bold text-lg leading-none">{total}</span>
-          <span className="text-[8px] text-zinc-500">ITEMS</span>
+        <div className={`w-16 h-16 rounded-full absolute flex flex-col items-center justify-center ${theme === 'dark' ? 'bg-zinc-900' : 'bg-white'}`}>
+          <span className={`font-bold text-lg leading-none ${theme === 'dark' ? '' : 'text-zinc-900'}`}>{total}</span>
+          <span className={`text-[8px] ${theme === 'dark' ? 'text-zinc-500' : 'text-zinc-400'}`}>ITEMS</span>
         </div>
       </div>
       <div className="flex flex-col gap-1 text-[10px]">
         {finalSegments.map(s => (
           <div key={s.cat} className="flex items-center gap-1.5">
             <div className="w-2 h-2 rounded-full" style={{ background: s.color }}></div>
-            <span className="text-zinc-400 capitalize">{s.cat} ({s.qty})</span>
+            <span className={`capitalize ${theme === 'dark' ? 'text-zinc-400' : 'text-zinc-600'}`}>{s.cat} ({s.qty})</span>
           </div>
         ))}
       </div>

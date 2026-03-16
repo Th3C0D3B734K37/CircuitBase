@@ -14,7 +14,7 @@ const CATS = [
 ];
 
 export default function DatabaseTab() {
-  const { inventory, setInventory, dbExtra, recentlyViewed, setRecentlyViewed, showToast, setSelectedComponentId } = useAppContext();
+  const { inventory, setInventory, dbExtra, recentlyViewed, setRecentlyViewed, showToast, setSelectedComponentId, theme } = useAppContext();
   const [search, setSearch] = useState('');
   const [tierFilter, setTierFilter] = useState('');
   const [interfaceFilter, setInterfaceFilter] = useState('');
@@ -106,17 +106,17 @@ export default function DatabaseTab() {
 
       <div className="flex flex-col md:flex-row gap-2 mb-4">
         <div className="relative flex-1">
-          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-zinc-500" size={14} />
-          <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by name, spec, tag... (Press / to focus)" className="w-full bg-zinc-900 border border-zinc-700 text-xs py-2 pl-8 pr-3 focus:border-amber-500 outline-none transition-colors" />
+          <Search className={`absolute left-2.5 top-1/2 -translate-y-1/2 ${theme === 'dark' ? 'text-zinc-500' : 'text-zinc-400'}`} size={14} />
+          <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by name, spec, tag... (Press / to focus)" className={`w-full border text-xs py-2 pl-8 pr-3 focus:border-amber-500 outline-none transition-colors ${theme === 'dark' ? 'bg-zinc-900 border-zinc-700' : 'bg-white border-zinc-300'}`} />
         </div>
         <div className="flex gap-2">
-          <select value={tierFilter} onChange={e => setTierFilter(e.target.value)} className="flex-1 md:w-[140px] bg-zinc-900 border border-zinc-700 text-xs py-2 px-3 focus:border-amber-500 outline-none">
+          <select value={tierFilter} onChange={e => setTierFilter(e.target.value)} className={`flex-1 md:w-[140px] border text-xs py-2 px-3 focus:border-amber-500 outline-none ${theme === 'dark' ? 'bg-zinc-900 border-zinc-700' : 'bg-white border-zinc-300'}`}>
             <option value="">All Tiers</option>
             <option value="1">Tier 1 — Essential</option>
             <option value="2">Tier 2 — Intermediate</option>
             <option value="3">Tier 3 — Advanced</option>
           </select>
-          <select value={interfaceFilter} onChange={e => setInterfaceFilter(e.target.value)} className="flex-1 md:w-[140px] bg-zinc-900 border border-zinc-700 text-xs py-2 px-3 focus:border-amber-500 outline-none">
+          <select value={interfaceFilter} onChange={e => setInterfaceFilter(e.target.value)} className={`flex-1 md:w-[140px] border text-xs py-2 px-3 focus:border-amber-500 outline-none ${theme === 'dark' ? 'bg-zinc-900 border-zinc-700' : 'bg-white border-zinc-300'}`}>
             <option value="">All Interfaces</option>
             <option value="I2C">I2C</option>
             <option value="SPI">SPI</option>
@@ -129,40 +129,40 @@ export default function DatabaseTab() {
 
       <div className="flex flex-wrap gap-1 mb-4">
         {CATS.map(c => (
-          <button key={c.id} onClick={() => setCatFilter(c.id)} className={`px-2.5 py-1 text-[10px] font-medium uppercase tracking-wider border transition-colors ${catFilter === c.id ? 'border-amber-500 text-amber-500 bg-amber-500/10' : 'border-zinc-800 text-zinc-500 hover:text-zinc-300 hover:border-zinc-600'}`}>
+          <button key={c.id} onClick={() => setCatFilter(c.id)} className={`px-2.5 py-1 text-[10px] font-medium uppercase tracking-wider border transition-colors ${catFilter === c.id ? 'border-amber-500 text-amber-500 bg-amber-500/10' : theme === 'dark' ? 'border-zinc-800 text-zinc-500 hover:text-zinc-300 hover:border-zinc-600' : 'border-zinc-300 text-zinc-600 hover:text-zinc-800 hover:border-zinc-400'}`}>
             {c.label}
           </button>
         ))}
       </div>
 
       {filteredComps.length === 0 ? (
-        <div className="text-center py-16 text-zinc-500 text-xs">No components match your search.</div>
+        <div className={`text-center py-16 text-xs ${theme === 'dark' ? 'text-zinc-500' : 'text-zinc-400'}`}>No components match your search.</div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
           {filteredComps.map(c => {
             const inInv = invIds.has(c.id);
             return (
-              <div key={c.id} onClick={() => handleCardClick(c.id)} className="bg-zinc-900 border border-zinc-800 p-3.5 hover:border-zinc-600 transition-colors relative group">
+              <div key={c.id} onClick={() => handleCardClick(c.id)} className={`border p-3.5 transition-colors relative group ${theme === 'dark' ? 'bg-zinc-900 border-zinc-800 hover:border-zinc-600' : 'bg-white border-zinc-200 hover:border-amber-400 shadow-sm'}`}>
                 <input type="checkbox" checked={compareIds.includes(c.id)} onChange={(e) => handleCompareToggle(c.id, e)} onClick={e => e.stopPropagation()} className="absolute top-3.5 right-3.5 w-4 h-4 cursor-pointer accent-amber-500" />
                 <div className="flex justify-between items-start gap-2 mb-2 pr-6">
-                  <div className="font-sans text-sm font-semibold leading-snug">
+                  <div className={`font-sans text-sm font-semibold leading-snug ${theme === 'dark' ? '' : 'text-zinc-900'}`}>
                     {c.name}
-                    {c.verified ? <span className="ml-1.5 text-[9px] text-green-400 border border-green-900/50 px-1 py-0.5">✓ Verified</span> : <span className="ml-1.5 text-[9px] text-zinc-500 border border-zinc-800 px-1 py-0.5">Community</span>}
+                    {c.verified ? <span className="ml-1.5 text-[9px] text-green-400 border border-green-900/50 px-1 py-0.5">✓ Verified</span> : <span className={`ml-1.5 text-[9px] border px-1 py-0.5 ${theme === 'dark' ? 'text-zinc-500 border-zinc-800' : 'text-zinc-400 border-zinc-300'}`}>Community</span>}
                   </div>
                 </div>
                 <div className="flex gap-1.5 items-center mb-2">
-                  {c.datasheet && <a href={c.datasheet} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()} className="text-[9px] px-1.5 py-0.5 bg-zinc-800 border border-zinc-700 text-zinc-400 hover:text-zinc-200 hover:border-zinc-500 flex items-center gap-1">Datasheet <ExternalLink size={8} /></a>}
+                  {c.datasheet && <a href={c.datasheet} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()} className={`text-[9px] px-1.5 py-0.5 border flex items-center gap-1 ${theme === 'dark' ? 'bg-zinc-800 border-zinc-700 text-zinc-400 hover:text-zinc-200 hover:border-zinc-500' : 'bg-zinc-100 border-zinc-300 text-zinc-600 hover:text-zinc-900 hover:border-zinc-400'}`}>Datasheet <ExternalLink size={8} /></a>}
                   <span className={`text-[9px] px-1.5 py-0.5 font-bold tracking-wider border ${c.tier === 1 ? 'bg-green-950 text-green-400 border-green-900' : c.tier === 2 ? 'bg-amber-950 text-amber-500 border-amber-900' : 'bg-purple-950 text-purple-400 border-purple-900'}`}>T{c.tier}</span>
-                  <span className="text-[9px] px-1.5 py-0.5 font-bold tracking-wider uppercase bg-zinc-950 border border-zinc-800">{c.cat}</span>
+                  <span className={`text-[9px] px-1.5 py-0.5 font-bold tracking-wighter uppercase border ${theme === 'dark' ? 'bg-zinc-950 border-zinc-800' : 'bg-zinc-100 border-zinc-300 text-zinc-700'}`}>{c.cat}</span>
                 </div>
-                <div className="text-[11px] text-zinc-400 my-1.5 leading-relaxed">{c.note}</div>
+                <div className={`text-[11px] my-1.5 leading-relaxed ${theme === 'dark' ? 'text-zinc-400' : 'text-zinc-600'}`}>{c.note}</div>
                 {c.tags && c.tags.length > 0 && (
                   <div className="flex flex-wrap gap-1 mt-2">
-                    {c.tags.map(t => <span key={t} className="text-[10px] text-zinc-400 bg-zinc-950 border border-zinc-800 px-1.5 py-0.5">{t}</span>)}
+                    {c.tags.map(t => <span key={t} className={`text-[10px] border px-1.5 py-0.5 ${theme === 'dark' ? 'text-zinc-400 bg-zinc-950 border-zinc-800' : 'text-zinc-600 bg-zinc-100 border-zinc-200'}`}>{t}</span>)}
                   </div>
                 )}
                 {c.pairs && c.pairs.length > 0 && (
-                  <div className="mt-2 text-[10px] text-zinc-500 hidden group-hover:block">
+                  <div className={`mt-2 text-[10px] hidden group-hover:block ${theme === 'dark' ? 'text-zinc-500' : 'text-zinc-500'}`}>
                     Pairs well with: {c.pairs.map(p => {
                       const pc = allComps.find(x => x.id === p);
                       return pc ? <span key={p} onClick={(e) => { e.stopPropagation(); setSelectedComponentId(pc.id); }} className="text-blue-400 cursor-pointer hover:underline mr-1">{pc.name}</span> : null;
@@ -172,14 +172,14 @@ export default function DatabaseTab() {
                 {c.wtb && (
                   <div className="mt-2 text-[10px] flex gap-1.5 flex-wrap">
                     Buy:
-                    {c.wtb.robu && <a href={c.wtb.robu} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()} className="text-amber-500 border border-zinc-800 px-1.5 py-0.5 rounded-sm hover:bg-zinc-800">Robu</a>}
-                    {c.wtb.amazon && <a href={c.wtb.amazon} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()} className="text-amber-500 border border-zinc-800 px-1.5 py-0.5 rounded-sm hover:bg-zinc-800">Amazon</a>}
-                    {c.wtb.ali && <a href={c.wtb.ali} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()} className="text-amber-500 border border-zinc-800 px-1.5 py-0.5 rounded-sm hover:bg-zinc-800">AliExpress</a>}
+                    {c.wtb.robu && <a href={c.wtb.robu} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()} className={`text-amber-500 border px-1.5 py-0.5 rounded-sm ${theme === 'dark' ? 'border-zinc-800 hover:bg-zinc-800' : 'border-zinc-300 hover:bg-zinc-100'}`}>Robu</a>}
+                    {c.wtb.amazon && <a href={c.wtb.amazon} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()} className={`text-amber-500 border px-1.5 py-0.5 rounded-sm ${theme === 'dark' ? 'border-zinc-800 hover:bg-zinc-800' : 'border-zinc-300 hover:bg-zinc-100'}`}>Amazon</a>}
+                    {c.wtb.ali && <a href={c.wtb.ali} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()} className={`text-amber-500 border px-1.5 py-0.5 rounded-sm ${theme === 'dark' ? 'border-zinc-800 hover:bg-zinc-800' : 'border-zinc-300 hover:bg-zinc-100'}`}>AliExpress</a>}
                   </div>
                 )}
-                <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-zinc-800">
-                  <div className="text-[11px] text-zinc-400">{c.price ? <b className="text-amber-500 font-semibold">₹{c.price}</b> : '—'}</div>
-                  <button onClick={(e) => handleAddInv(c.id, e)} className={`text-[10px] font-semibold tracking-wider uppercase px-2.5 py-1 border transition-colors flex items-center gap-1 ${inInv ? 'border-green-900/50 text-green-500 bg-green-950/30 cursor-default' : 'border-zinc-700 text-zinc-400 hover:border-green-500 hover:text-green-500'}`}>
+                <div className={`flex items-center justify-between mt-3 pt-2.5 border-t ${theme === 'dark' ? 'border-zinc-800' : 'border-zinc-200'}`}>
+                  <div className={`text-[11px] ${theme === 'dark' ? 'text-zinc-400' : 'text-zinc-600'}`}>{c.price ? <b className="text-amber-500 font-semibold">₹{c.price}</b> : '—'}</div>
+                  <button onClick={(e) => handleAddInv(c.id, e)} className={`text-[10px] font-semibold tracking-wider uppercase px-2.5 py-1 border transition-colors flex items-center gap-1 ${inInv ? 'border-green-900/50 text-green-500 bg-green-950/30 cursor-default' : theme === 'dark' ? 'border-zinc-700 text-zinc-400 hover:border-green-500 hover:text-green-500' : 'border-zinc-300 text-zinc-600 hover:border-green-500 hover:text-green-600'}`}>
                     {inInv ? <><Check size={12} /> In Inventory</> : <><Plus size={12} /> Add to Inventory</>}
                   </button>
                 </div>
