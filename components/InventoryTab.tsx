@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { useAppContext } from './AppContext';
-import { Search, Plus, Download, Upload, X } from 'lucide-react';
+import { Search, Plus, Download, Upload, X, Trash2 } from 'lucide-react';
 import { InventoryItem } from '@/lib/types';
 
 const CATS = [
@@ -17,6 +17,7 @@ export default function InventoryTab() {
   const [search, setSearch] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
   const [showBulkModal, setShowBulkModal] = useState(false);
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
 
   const filteredInv = useMemo(() => {
     const q = search.toLowerCase();
@@ -73,6 +74,7 @@ export default function InventoryTab() {
       <div className="flex flex-col md:flex-row md:items-baseline gap-3 mb-5 pb-3 border-b border-zinc-800">
         <h2 className="text-xl font-bold font-sans tracking-tight">My Inventory</h2>
         <div className="md:ml-auto flex flex-wrap gap-2">
+          <button onClick={() => setShowClearConfirm(true)} className="flex-1 md:flex-none justify-center px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider border border-red-900 text-red-500 hover:border-red-500 hover:text-red-400 transition-colors flex items-center gap-1"><Trash2 size={12} /> Clear All</button>
           <button onClick={() => setShowBulkModal(true)} className="flex-1 md:flex-none justify-center px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider border border-zinc-700 hover:border-amber-500 hover:text-amber-500 transition-colors flex items-center gap-1"><Upload size={12} /> Bulk Import</button>
           <button onClick={exportCSV} className="flex-1 md:flex-none justify-center px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider border border-zinc-700 hover:border-amber-500 hover:text-amber-500 transition-colors flex items-center gap-1"><Download size={12} /> Export</button>
           <button onClick={() => setShowAddModal(true)} className="flex-1 md:flex-none justify-center px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider bg-amber-500 text-black hover:bg-amber-400 transition-colors flex items-center gap-1"><Plus size={12} /> Add Component</button>
@@ -164,6 +166,7 @@ export default function InventoryTab() {
 
       {showAddModal && <AddInventoryModal onClose={() => setShowAddModal(false)} />}
       {showBulkModal && <BulkImportModal onClose={() => setShowBulkModal(false)} />}
+      {showClearConfirm && <ClearConfirmModal onClose={() => setShowClearConfirm(false)} onConfirm={() => { setInventory([]); setShowClearConfirm(false); showToast('Inventory cleared', 'success'); }} />}
     </div>
   );
 }
@@ -284,6 +287,21 @@ function AddInventoryModal({ onClose }: { onClose: () => void }) {
         <div className="flex justify-end gap-2">
           <button onClick={onClose} className="px-4 py-2 text-xs font-semibold uppercase tracking-wider border border-zinc-700 hover:border-amber-500 hover:text-amber-500">Cancel</button>
           <button onClick={submit} className="px-4 py-2 text-xs font-semibold uppercase tracking-wider bg-amber-500 text-black hover:bg-amber-400">Add to Inventory</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ClearConfirmModal({ onClose, onConfirm }: { onClose: () => void, onConfirm: () => void }) {
+  return (
+    <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4" onClick={onClose}>
+      <div className="bg-zinc-900 border border-zinc-700 p-6 w-full max-w-sm" onClick={e => e.stopPropagation()}>
+        <h3 className="text-lg font-bold font-sans mb-3 text-red-500">Clear All Inventory?</h3>
+        <p className="text-sm text-zinc-400 mb-5">This will permanently remove all {useAppContext().inventory.length} items from your inventory. This action cannot be undone.</p>
+        <div className="flex justify-end gap-2">
+          <button onClick={onClose} className="px-4 py-2 text-xs font-semibold uppercase tracking-wider border border-zinc-700 hover:border-amber-500 hover:text-amber-500">Cancel</button>
+          <button onClick={onConfirm} className="px-4 py-2 text-xs font-semibold uppercase tracking-wider bg-red-600 text-white hover:bg-red-500">Clear All</button>
         </div>
       </div>
     </div>

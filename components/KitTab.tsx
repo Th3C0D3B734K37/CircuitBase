@@ -3,30 +3,16 @@
 import React, { useState, useMemo } from 'react';
 import { useAppContext } from './AppContext';
 import { COMPONENTS, STARTER_KITS } from '@/lib/data';
-import { Search, Plus, Check } from 'lucide-react';
+import { Plus, Check, ChevronDown, ChevronUp, Package, Wrench } from 'lucide-react';
 
 export default function KitTab() {
-  const { inventory, setInventory, showToast, setSelectedComponentId } = useAppContext();
-  const [budget, setBudget] = useState(2000);
-  const [focus, setFocus] = useState<'general' | 'iot' | 'robotics' | 'display' | 'wireless' | 'power' | 'audio' | 'basic'>('general');
-  const [mode, setMode] = useState<'budget' | 'project'>('budget');
-  const [projQuery, setProjQuery] = useState('');
+  const { inventory, setInventory, showToast, setSelectedComponentId, theme } = useAppContext();
+  const [selectedKit, setSelectedKit] = useState<string | null>(null);
+  const [expandedKit, setExpandedKit] = useState<string | null>(null);
 
-  const recommended = useMemo(() => {
-    if (mode === 'project') {
-      const q = projQuery.toLowerCase();
-      if (!q) return [];
-      
-      const matches = STARTER_KITS.filter(k => 
-        k.name.toLowerCase().includes(q) || 
-        k.desc.toLowerCase().includes(q) ||
-        k.tags.some(t => t.toLowerCase().includes(q))
-      );
-      
-      if (matches.length === 0) return [];
-      
-      const kit = matches[0];
-      return kit.items.map(ki => {
+  const kitDetails = useMemo(() => {
+    return STARTER_KITS.map(kit => {
+      const items = kit.items.map(ki => {
         const comp = COMPONENTS.find(c => c.id === ki.id);
         if (!comp) return null;
         const invMatch = inventory.find(i => i.refId === comp.id);
@@ -34,108 +20,25 @@ export default function KitTab() {
         const need = Math.max(0, ki.qty - have);
         return { ...comp, reqQty: ki.qty, have, need, cost: need * (comp.price || 0) };
       }).filter(Boolean) as any[];
-    }
-
-    // Budget mode - Enhanced with better suggestions
-    let pool = COMPONENTS.filter(c => c.price && c.price > 0);
-    
-    // Enhanced filtering based on focus with more comprehensive matching
-    if (focus === 'iot') {
-      pool = pool.filter(c => c.tags && (
-        c.tags.includes('wifi') || c.tags.includes('mcu') || 
-        c.tags.includes('sensor') || c.tags.includes('display') ||
-        c.tags.includes('iot') || c.cat === 'mcu' || c.cat === 'sensor'
-      ));
-    }
-    else if (focus === 'robotics') {
-      pool = pool.filter(c => c.tags && (
-        c.tags.includes('motor') || c.tags.includes('driver') || 
-        c.tags.includes('power') || c.tags.includes('servo') ||
-        c.cat === 'mechanical' || c.tags.includes('robotics')
-      ));
-    }
-    else if (focus === 'display') {
-      pool = pool.filter(c => c.tags && (
-        c.tags.includes('display') || c.tags.includes('oled') || 
-        c.tags.includes('tft') || c.tags.includes('lcd') ||
-        c.cat === 'display' || c.tags.includes('screen')
-      ));
-    }
-    else if (focus === 'wireless') {
-      pool = pool.filter(c => c.tags && (
-        c.tags.includes('wifi') || c.tags.includes('bluetooth') || 
-        c.tags.includes('rf') || c.tags.includes('lora') ||
-        c.cat === 'rf' || c.tags.includes('wireless')
-      ));
-    }
-    else if (focus === 'power') {
-      pool = pool.filter(c => c.tags && (
-        c.tags.includes('power') || c.tags.includes('battery') || 
-        c.tags.includes('charger') || c.tags.includes('regulator') ||
-        c.cat === 'power' || c.tags.includes('voltage')
-      ));
-    }
-
-    // Enhanced scoring algorithm for better recommendations
-    const sorted = pool.sort((a, b) => {
-      // Base score by category importance
-      let scoreA = 0, scoreB = 0;
       
-      // Essential components get higher scores
-      if (a.tier === 1) scoreA += 50;
-      if (b.tier === 1) scoreB += 50;
+      const totalCost = items.reduce((sum, item) => sum + item.cost, 0);
+      const ownedCount = items.filter(i => i.have >= i.reqQty).length;
+      const missingCount = items.filter(i => i.need > 0).length;
       
-      // Category-specific scoring
-      if (a.cat === 'mcu') scoreA += 30;
-      if (b.cat === 'mcu') scoreB += 30;
-      if (a.cat === 'sensor') scoreA += 20;
-      if (b.cat === 'sensor') scoreB += 20;
-      if (a.cat === 'power') scoreA += 15;
-      if (b.cat === 'power') scoreB += 15;
-      
-      // Price consideration (lower price gets slight advantage)
-      scoreA += Math.max(0, 100 - (a.price || 0) / 20);
-      scoreB += Math.max(0, 100 - (b.price || 0) / 20);
-      
-      // Tag matching with focus
-      if (focus === 'iot' && a.tags && a.tags.some(t => ['wifi', 'mcu', 'sensor'].includes(t))) scoreA += 25;
-      if (focus === 'robotics' && a.tags && a.tags.some(t => ['motor', 'driver', 'servo'].includes(t))) scoreA += 25;
-      if (focus === 'display' && a.tags && a.tags.some(t => ['display', 'oled', 'tft'].includes(t))) scoreA += 25;
-      
-      return scoreB - scoreA;
+      return { ...kit, items, totalCost, ownedCount, missingCount };
     });
+  }, [inventory]);
 
-    let spent = 0;
-    const recs = [];
-    
-    for (const comp of sorted) {
-      const invMatch = inventory.find(i => i.refId === comp.id);
-      const have = invMatch ? invMatch.qty : 0;
-      
-      // If we already have it, include it but don't count against budget
-      if (have > 0) {
-        recs.push({ ...comp, reqQty: 1, have, need: 0, cost: 0 });
-        continue;
-      }
+  const selectedKitData = useMemo(() => {
+    if (!selectedKit) return null;
+    return kitDetails.find(k => k.id === selectedKit);
+  }, [selectedKit, kitDetails]);
 
-      if (spent + (comp.price || 0) <= budget) {
-        recs.push({ ...comp, reqQty: 1, have: 0, need: 1, cost: comp.price || 0 });
-        spent += (comp.price || 0);
-      }
-      
-      if (recs.length >= 15) break; // Cap at 15 items
-    }
-    
-    return recs;
-  }, [budget, focus, inventory, mode, projQuery]);
-
-  const totalCost = recommended.reduce((sum, item) => sum + item.cost, 0);
-
-  const addAllToInv = () => {
+  const addKitToInv = (kit: any) => {
     const newInv = [...inventory];
     let added = 0;
     
-    recommended.forEach(item => {
+    kit.items.forEach((item: any) => {
       if (item.need > 0) {
         const existing = newInv.find(i => i.refId === item.id);
         if (existing) {
@@ -151,7 +54,7 @@ export default function KitTab() {
             price: item.price,
             loc: '',
             cond: 'New',
-            notes: 'From Kit Recommender'
+            notes: `From ${kit.name}`
           });
         }
         added += item.need;
@@ -160,173 +63,158 @@ export default function KitTab() {
     
     if (added > 0) {
       setInventory(newInv);
-      showToast(`Added ${added} items to inventory`, 'success');
+      showToast(`Added ${added} items from ${kit.name} to inventory`, 'success');
     } else {
-      showToast('You already have all required items', 'info');
+      showToast(`You already have all items for ${kit.name}`, 'info');
     }
   };
 
+  const getDifficultyColor = (items: any[]) => {
+    const count = items.length;
+    if (count <= 5) return 'text-green-500';
+    if (count <= 8) return 'text-amber-500';
+    return 'text-red-500';
+  };
+
   return (
-    <div className="animate-in fade-in duration-300 max-w-5xl mx-auto">
-      <div className="text-center mb-10">
-        <h2 className="text-3xl font-bold font-sans tracking-tight mb-3">Starter Kit Builder</h2>
-        <p className="text-zinc-400 text-sm max-w-2xl mx-auto">Generate a smart shopping list based on your budget or a specific project goal. We automatically subtract parts you already own.</p>
+    <div className="animate-in fade-in duration-300 max-w-6xl mx-auto">
+      <div className="text-center mb-8">
+        <h2 className="text-3xl font-bold font-sans tracking-tight mb-3">Curated Starter Kits</h2>
+        <p className="text-zinc-400 text-sm max-w-2xl mx-auto">
+          Browse our premade project kits. Each kit contains exactly what you need to build a complete project. 
+          We automatically detect what you already own and only add missing items.
+        </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="md:col-span-1 space-y-6">
-          <div className="bg-zinc-900 border border-zinc-800 p-5">
-            <h3 className="text-sm font-bold font-sans uppercase tracking-wider text-amber-500 mb-4 pb-2 border-b border-zinc-800">Recommendation Mode</h3>
-            
-            <div className="flex bg-zinc-950 p-1 border border-zinc-800 mb-5">
-              <button 
-                onClick={() => setMode('budget')} 
-                className={`flex-1 py-1.5 text-xs font-semibold uppercase tracking-wider transition-colors ${mode === 'budget' ? 'bg-amber-500 text-black' : 'text-zinc-500 hover:text-zinc-300'}`}
-              >
-                By Budget
-              </button>
-              <button 
-                onClick={() => setMode('project')} 
-                className={`flex-1 py-1.5 text-xs font-semibold uppercase tracking-wider transition-colors ${mode === 'project' ? 'bg-amber-500 text-black' : 'text-zinc-500 hover:text-zinc-300'}`}
-              >
-                By Project
-              </button>
-            </div>
-
-            {mode === 'budget' ? (
-              <div className="space-y-4 animate-in fade-in">
-                <div>
-                  <label className="block text-[10px] font-semibold tracking-wider uppercase text-zinc-500 mb-2 flex justify-between">
-                    <span>Max Budget (₹)</span>
-                    <span className="text-amber-500">₹{budget}</span>
-                  </label>
-                  <input 
-                    type="range" 
-                    min="500" max="10000" step="500" 
-                    value={budget} 
-                    onChange={e => setBudget(parseInt(e.target.value))}
-                    className="w-full accent-amber-500"
-                  />
-                  <div className="flex justify-between text-[9px] text-zinc-600 mt-1 font-mono">
-                    <span>₹500</span><span>₹10K</span>
-                  </div>
+      {/* Kit Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+        {kitDetails.map((kit) => (
+          <div 
+            key={kit.id}
+            className={`border transition-all cursor-pointer ${
+              selectedKit === kit.id 
+                ? 'border-amber-500 bg-zinc-900' 
+                : theme === 'dark' 
+                  ? 'border-zinc-800 bg-zinc-900/50 hover:border-zinc-700' 
+                  : 'border-zinc-200 bg-zinc-50 hover:border-zinc-300'
+            }`}
+            onClick={() => setSelectedKit(kit.id)}
+          >
+            <div className="p-4">
+              <div className="flex items-start justify-between mb-3">
+                <div className={`p-2 rounded ${theme === 'dark' ? 'bg-zinc-800' : 'bg-zinc-200'}`}>
+                  <Package className="w-4 h-4 text-amber-500" />
                 </div>
-                
-                <div>
-                  <label className="block text-[10px] font-semibold tracking-wider uppercase text-zinc-500 mb-2">Focus Area</label>
-                  <select 
-                    value={focus} 
-                    onChange={e => setFocus(e.target.value)}
-                    className="w-full bg-zinc-950 border border-zinc-800 text-xs py-2 px-3 focus:border-amber-500 outline-none"
-                  >
-                    <option value="general">General Electronics</option>
-                    <option value="iot">IoT & Smart Home</option>
-                    <option value="robotics">Robotics & Motors</option>
-                    <option value="display">Displays & Screens</option>
-                    <option value="wireless">Wireless & RF</option>
-                    <option value="power">Power & Batteries</option>
-                    <option value="audio">Audio & Synth</option>
-                    <option value="basic">Basic Components</option>
-                  </select>
+                <div className="text-right">
+                  <div className="text-lg font-bold font-sans text-amber-500">₹{kit.totalCost.toLocaleString('en-IN')}</div>
+                  <div className="text-[10px] text-zinc-500">{kit.items.length} components</div>
                 </div>
               </div>
-            ) : (
-              <div className="space-y-4 animate-in fade-in">
-                <div>
-                  <label className="block text-[10px] font-semibold tracking-wider uppercase text-zinc-500 mb-2">What do you want to build?</label>
-                  <div className="relative">
-                    <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-zinc-500" size={14} />
-                    <input 
-                      type="text" 
-                      value={projQuery}
-                      onChange={e => setProjQuery(e.target.value)}
-                      placeholder="e.g., Weather Station, Robot..."
-                      className="w-full bg-zinc-950 border border-zinc-800 text-xs py-2 pl-8 pr-3 focus:border-amber-500 outline-none"
-                    />
-                  </div>
-                  <div className="mt-3 flex flex-wrap gap-1.5">
-                    {['Weather', 'Robot', 'Clock'].map(tag => (
-                      <button 
-                        key={tag} 
-                        onClick={() => setProjQuery(tag)}
-                        className="text-[9px] uppercase tracking-wider px-2 py-1 bg-zinc-950 border border-zinc-800 text-zinc-400 hover:border-amber-500 hover:text-amber-500 transition-colors"
-                      >
-                        {tag}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+              
+              <h3 className={`font-semibold mb-1 ${theme === 'dark' ? 'text-zinc-100' : 'text-zinc-900'}`}>{kit.name}</h3>
+              <p className="text-xs text-zinc-500 mb-3 line-clamp-2">{kit.desc}</p>
+              
+              <div className="flex flex-wrap gap-1 mb-3">
+                {kit.tags.slice(0, 3).map(tag => (
+                  <span key={tag} className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 bg-zinc-950 border border-zinc-800 text-zinc-400">
+                    {tag}
+                  </span>
+                ))}
               </div>
-            )}
-          </div>
-
-          <div className="bg-amber-950/20 border border-amber-900/30 p-5 flex flex-col items-center text-center">
-            <div className="text-[10px] font-semibold uppercase tracking-widest text-amber-600 mb-1">Estimated Cost</div>
-            <div className="text-4xl font-bold font-sans text-amber-500 tracking-tight leading-none mb-4">₹{totalCost.toLocaleString('en-IN')}</div>
-            <button 
-              onClick={addAllToInv}
-              disabled={recommended.length === 0 || totalCost === 0}
-              className="w-full py-2.5 text-xs font-semibold uppercase tracking-wider bg-amber-500 text-black hover:bg-amber-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
-            >
-              <Plus size={14} /> Add Missing to Inventory
-            </button>
-          </div>
-        </div>
-
-        <div className="md:col-span-2">
-          {recommended.length > 0 ? (
-            <div className="border border-zinc-800 bg-zinc-900 overflow-hidden">
-              <div className="p-3 border-b border-zinc-800 bg-zinc-950 flex justify-between items-center">
-                <h3 className="text-xs font-bold font-sans uppercase tracking-wider text-zinc-400">Recommended Parts ({recommended.length})</h3>
-                <span className="text-[10px] text-zinc-500 font-mono">
-                  {recommended.filter(r => r.have > 0).length} owned, {recommended.filter(r => r.need > 0).length} needed
+              
+              <div className="flex items-center justify-between text-[10px]">
+                <span className={getDifficultyColor(kit.items)}>
+                  {kit.items.length <= 5 ? 'Beginner' : kit.items.length <= 8 ? 'Intermediate' : 'Advanced'}
+                </span>
+                <span className="text-zinc-500">
+                  {kit.ownedCount > 0 && <span className="text-green-500">{kit.ownedCount} owned</span>}
+                  {kit.missingCount > 0 && kit.ownedCount > 0 && <span className="text-zinc-500">, </span>}
+                  {kit.missingCount > 0 && <span className="text-amber-500">{kit.missingCount} needed</span>}
                 </span>
               </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse text-xs">
-                  <thead>
-                    <tr>
-                      <th className="p-2.5 border-b border-zinc-800 text-zinc-500 uppercase tracking-wider text-[10px] font-semibold">Component</th>
-                      <th className="p-2.5 border-b border-zinc-800 text-zinc-500 uppercase tracking-wider text-[10px] font-semibold text-center">Req</th>
-                      <th className="p-2.5 border-b border-zinc-800 text-zinc-500 uppercase tracking-wider text-[10px] font-semibold text-center">Have</th>
-                      <th className="p-2.5 border-b border-zinc-800 text-zinc-500 uppercase tracking-wider text-[10px] font-semibold text-center">Need</th>
-                      <th className="p-2.5 border-b border-zinc-800 text-zinc-500 uppercase tracking-wider text-[10px] font-semibold text-right">Cost</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {recommended.map((item, idx) => (
-                      <tr key={`${item.id}-${idx}`} className={`border-b border-zinc-800/50 hover:bg-zinc-800/30 transition-colors ${item.have >= item.reqQty ? 'opacity-60' : ''}`}>
-                        <td className="p-2.5">
-                          <div className="font-medium flex items-center gap-2">
-                            {item.have >= item.reqQty && <Check size={12} className="text-green-500" />}
-                            <button onClick={() => setSelectedComponentId(item.id)} className={`hover:text-amber-500 transition-colors text-left ${item.have >= item.reqQty ? 'line-through text-zinc-500' : ''}`}>
-                              {item.name}
-                            </button>
-                          </div>
-                          <div className="text-[9px] text-zinc-500 mt-0.5">{item.note ? item.note.substring(0, 60) + '...' : ''}</div>
-                        </td>
-                        <td className="p-2.5 text-center font-mono text-zinc-400">{item.reqQty}</td>
-                        <td className="p-2.5 text-center font-mono text-zinc-400">{item.have}</td>
-                        <td className="p-2.5 text-center font-mono font-bold text-amber-500">{item.need}</td>
-                        <td className="p-2.5 text-right font-mono text-amber-500">₹{item.cost}</td>
-                      </tr>
+            </div>
+            
+            {/* Expandable Details */}
+            <div className="border-t border-zinc-800">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setExpandedKit(expandedKit === kit.id ? null : kit.id);
+                }}
+                className="w-full py-2 flex items-center justify-center gap-1 text-[10px] uppercase tracking-wider text-zinc-500 hover:text-amber-500 transition-colors"
+              >
+                {expandedKit === kit.id ? <><ChevronUp size={12} /> Hide Details</> : <><ChevronDown size={12} /> View Contents</>}
+              </button>
+              
+              {expandedKit === kit.id && (
+                <div className="px-4 pb-4 animate-in slide-in-from-top-2 duration-200">
+                  <div className="space-y-1 max-h-48 overflow-y-auto">
+                    {kit.items.map((item: any, idx: number) => (
+                      <div 
+                        key={`${item.id}-${idx}`}
+                        className={`flex items-center justify-between py-1.5 px-2 text-xs border-b border-zinc-800/50 last:border-0 ${item.have >= item.reqQty ? 'opacity-50' : ''}`}
+                      >
+                        <div className="flex items-center gap-2">
+                          {item.have >= item.reqQty ? (
+                            <Check size={12} className="text-green-500" />
+                          ) : (
+                            <Wrench size={12} className="text-amber-500" />
+                          )}
+                          <button 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedComponentId(item.id);
+                            }}
+                            className="hover:text-amber-500 transition-colors"
+                          >
+                            {item.name}
+                          </button>
+                        </div>
+                        <div className="flex items-center gap-3 text-[10px] text-zinc-500">
+                          <span>×{item.reqQty}</span>
+                          {item.need > 0 && <span className="text-amber-500">₹{item.cost}</span>}
+                        </div>
+                      </div>
                     ))}
-                  </tbody>
-                </table>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Selected Kit Action Bar */}
+      {selectedKitData && (
+        <div className={`sticky bottom-0 border-t p-4 ${theme === 'dark' ? 'bg-zinc-900 border-zinc-800' : 'bg-zinc-50 border-zinc-200'}`}>
+          <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div>
+                <div className="text-sm font-semibold">{selectedKitData.name}</div>
+                <div className="text-xs text-zinc-500">
+                  {selectedKitData.missingCount} items to buy • ₹{selectedKitData.totalCost.toLocaleString('en-IN')}
+                </div>
               </div>
             </div>
-          ) : (
-            <div className="h-full min-h-[300px] border border-dashed border-zinc-800 flex flex-col items-center justify-center text-zinc-500 p-6">
-              <Search size={32} className="text-zinc-700 mb-4" />
-              <p className="text-sm text-center">
-                {mode === 'project' && projQuery 
-                  ? `No projects found matching "${projQuery}". Try "Weather" or "Robot".` 
-                  : 'Adjust your budget or search for a project to see recommendations.'}
-              </p>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setSelectedKit(null)}
+                className="px-4 py-2 text-xs font-semibold uppercase tracking-wider border border-zinc-700 text-zinc-400 hover:border-zinc-500 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => addKitToInv(selectedKitData)}
+                disabled={selectedKitData.missingCount === 0}
+                className="px-6 py-2 text-xs font-semibold uppercase tracking-wider bg-amber-500 text-black hover:bg-amber-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+              >
+                <Plus size={14} />
+                {selectedKitData.missingCount === 0 ? 'Already Have All Items' : 'Add Missing to Inventory'}
+              </button>
             </div>
-          )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
