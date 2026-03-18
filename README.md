@@ -55,7 +55,7 @@
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/circuitbase.git
+   git clone https://github.com/Th3C0D3B734K37/circuitbase.git
    cd circuitbase
    ```
 
